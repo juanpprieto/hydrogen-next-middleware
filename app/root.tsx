@@ -16,8 +16,28 @@ import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import {PageLayout} from './components/PageLayout';
+import {rootContext} from '~/lib/context';
 
 export type RootLoader = typeof loader;
+
+export const middleware: Route.MiddlewareFunction[] = [
+  async ({context}, next) => {
+    console.log('start root middleware');
+    context.set(rootContext, 'ROOT');
+    const res = await next();
+    console.log('end root middleware');
+    return res;
+  },
+];
+
+export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
+  async ({context}, next) => {
+    console.log('start root middleware');
+    context.set(rootContext, 'ROOT');
+    await next();
+    console.log('end root middleware');
+  },
+];
 
 /**
  * This is important to avoid re-fetching root queries on sub-navigations
@@ -74,6 +94,8 @@ export async function loader(args: Route.LoaderArgs) {
 
   const {storefront, env} = args.context;
 
+  const root = args.context.get(rootContext);
+
   return {
     ...deferredData,
     ...criticalData,
@@ -90,6 +112,7 @@ export async function loader(args: Route.LoaderArgs) {
       country: args.context.storefront.i18n.country,
       language: args.context.storefront.i18n.language,
     },
+    root,
   };
 }
 
@@ -177,6 +200,7 @@ export default function App() {
       consent={data.consent}
     >
       <PageLayout {...data}>
+        <h1>{data.root}</h1>
         <Outlet />;
       </PageLayout>
     </Analytics.Provider>

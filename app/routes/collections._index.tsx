@@ -3,6 +3,26 @@ import type {Route} from './+types/collections._index';
 import {getPaginationVariables, Image} from '@shopify/hydrogen';
 import type {CollectionFragment} from 'storefrontapi.generated';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
+import {rootContext} from '~/lib/context';
+
+export const middleware: Route.MiddlewareFunction[] = [
+  async ({context}, next) => {
+    console.log('start collections middleware');
+    context.set(rootContext, 'ROOT:collections');
+    console.log('end collections middleware');
+    const res = await next();
+    return res;
+  },
+];
+
+export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
+  async ({context}, next) => {
+    console.log('start collections middleware');
+    context.set(rootContext, 'ROOT:collections');
+    await next();
+    console.log('end collections middleware');
+  },
+];
 
 export async function loader(args: Route.LoaderArgs) {
   // Start fetching non-critical data without blocking time to first byte

@@ -2,6 +2,13 @@ import {createHydrogenContext} from '@shopify/hydrogen';
 import {AppSession} from '~/lib/session';
 import {CART_QUERY_FRAGMENT} from '~/lib/fragments';
 
+import {createContext} from 'react-router';
+
+export const expressContext = createContext<string>('default');
+export const rootContext = createContext<string>();
+export const aContext = createContext<string>();
+export const bContext = createContext<string>('empty');
+
 // Define the additional context object
 const additionalContext = {
   // Additional context for custom properties, CMS clients, 3P SDKs, etc.

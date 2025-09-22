@@ -7,19 +7,41 @@ import type {
   RecommendedProductsQuery,
 } from 'storefrontapi.generated';
 import {ProductItem} from '~/components/ProductItem';
+import {rootContext} from '~/lib/context';
 
 export const meta: Route.MetaFunction = () => {
   return [{title: 'Hydrogen | Home'}];
 };
 
+export const middleware: Route.MiddlewareFunction[] = [
+  async ({context}, next) => {
+    console.log('start index middleware');
+    context.set(rootContext, 'ROOT:index');
+    const res = await next();
+    console.log('end index middleware');
+    return res;
+  },
+];
+
+export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
+  async ({context}, next) => {
+    console.log('start index middleware');
+    context.set(rootContext, 'ROOT:index');
+    await next();
+    console.log('end index middleware');
+  },
+];
+
 export async function loader(args: Route.LoaderArgs) {
+  const root = args.context.get(rootContext);
+
   // Start fetching non-critical data without blocking time to first byte
   const deferredData = loadDeferredData(args);
 
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
-  return {...deferredData, ...criticalData};
+  return {root, ...deferredData, ...criticalData};
 }
 
 /**
